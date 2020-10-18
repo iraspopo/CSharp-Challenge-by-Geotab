@@ -12,63 +12,93 @@ namespace ConsoleApp1
 
         public JsonFeed() { }
 
-		public JsonFeed(string endpoint)
+        public JsonFeed(string endpoint)
         {
             _url = endpoint;
         }
 
 
-		public string[] GetRandomJokes(
+        public async Task<string[]> GetRandomJokes(
             string firstName,
             string lastName,
             string category,
             int numOfJokes)
         {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_url);
-            string url = "jokes/random";
-            if (category != null)
+            try
             {
-                if (url.Contains('?'))
-                    url += "&";
-                else url += "?";
-                url += "category=";
-                url += category;
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(_url);
+                    string url = "jokes/random";
+                    if (category != null)
+                    {
+                        if (url.Contains('?'))
+                            url += "&";
+                        else url += "?";
+                        url += "category=";
+                        url += category;
+                    }
+                    string[] rc = new string[numOfJokes];
+                    ConsolePrinter printer = new ConsolePrinter();
+                    for (int i = 0; i < numOfJokes; i++)
+                    {
+                        var jokeAsJsonStr = await client.GetStringAsync(url).ConfigureAwait(false);
+                        string joke = JsonConvert.DeserializeObject<dynamic>(jokeAsJsonStr).value;
+                        
+                        printer.Value("Getting jokes " + new String('.',i+1)).Print();
+
+                        if (firstName != null && lastName != null)
+                        {
+                            var regex = new Regex("Chuck", RegexOptions.IgnoreCase);
+                            joke = regex.Replace(joke, firstName);
+                            regex = new Regex("Norris", RegexOptions.IgnoreCase);
+                            joke = regex.Replace(joke, lastName);
+                        }
+                        rc[i] = joke;
+                    }
+                    return rc;
+                }
             }
-			string[] rc = new string[numOfJokes];
+            catch (Exception ex)
+            { 
+                return new string[2]{ "Sorry, no Chuck jokes for you at this time.", ex.Message};
+            }
 
-            for (int i = 0 ; i< numOfJokes; i++)
-			{
-				string jokeAsJsonStr = Task.FromResult(client.GetStringAsync(url).Result).Result;
-				string joke = JsonConvert.DeserializeObject<dynamic>(jokeAsJsonStr).value;
-
-				if (firstName != null && lastName != null)
-            	{
-					var regex = new Regex("Chuck", RegexOptions.IgnoreCase); 
-					joke = regex.Replace(joke, firstName);
-					regex = new Regex("Norris", RegexOptions.IgnoreCase); 
-					joke = regex.Replace(joke, lastName);	
-            	}
-				rc[i] = joke;
-			}
-			return rc;
         }
 
-        public dynamic GetNames()
+        public async Task<dynamic> GetNames()
         {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_url);
-            var result = client.GetStringAsync("").Result;
-            return JsonConvert.DeserializeObject<dynamic>(result);
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(_url);
+                    var result = await client.GetStringAsync("").ConfigureAwait(false);
+                    return JsonConvert.DeserializeObject<dynamic>(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new string[2]{ "Sorry, can't get random names for you. Must be Chuck's doing :).", ex.Message};
+            }
         }
 
-        public string[] GetCategories()
+        public async Task<string[]> GetCategories()
         {
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_url);
-            string url = "jokes/categories";
-            var result = client.GetStringAsync(url).Result;
-            return JsonConvert.DeserializeObject<string[]>(result);
+            try 
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(_url);
+                    string url = "jokes/categories";
+                    var result = await client.GetStringAsync(url).ConfigureAwait(false);
+                    return JsonConvert.DeserializeObject<string[]>(result);
+                }
+            }
+            catch(Exception ex)
+            {
+                return new string[2]{"Sorry, can't get Chuck joke categories. Don't tell Chuck.", ex.Message};
+            }
         }
     }
 }

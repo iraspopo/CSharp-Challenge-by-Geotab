@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ConsoleApp1
 {
     class Program
     {
         static List<int> validNumberOfJokes = new List<int>{1,2,3,4,5,6,7,8,9};
-        static void Main(string[] args)
+        
+        //igor - sine I believe C#7 Console application can also be async ()
+        static async Task Main(string[] args)
         {
             ConsolePrinter printer = new ConsolePrinter();
             ChuckNorrisController controller = new ChuckNorrisController();
@@ -38,14 +41,14 @@ namespace ConsoleApp1
                     printer.Value("Want to use a random name? y/n").Print();
                     char nameSelectionKey = GetEnteredKey(Console.ReadKey());
                     if (nameSelectionKey == 'y')
-                        names = controller.GetNames();
+                        names = await controller.GetNames().ConfigureAwait(false);
 
                     printer.Value("Want to specify a category? y/n").Print();
                     char categorySelectionKey = GetEnteredKey(Console.ReadKey());
                     if (categorySelectionKey == 'y')
                     {
                         //present categories and check input
-                        categorySelected = GetCategorySelection(controller, printer);
+                        categorySelected = await GetCategorySelection(controller, printer).ConfigureAwait(false);
                     }
 
                     numOfJokes = GetNumberOfJokes(printer);
@@ -53,8 +56,8 @@ namespace ConsoleApp1
                 }
                 if (mainSelectionKey == '1' || mainSelectionKey == '2')
                 {
-                    printer.Value("Getting joke/s...").Print();
-                    var jokes = controller.GetRandomJokes(names, categorySelected, numOfJokes);
+                    printer.Value("Asking Chuck for permission to publish jokes.").Print();
+                    var jokes = await controller.GetRandomJokes(names, categorySelected, numOfJokes).ConfigureAwait(false);
                     printer.PrintResultsPerLine(jokes);
                 }
                 if (mainSelectionKey == 'x')
@@ -65,13 +68,14 @@ namespace ConsoleApp1
             }
         }
 
-        private static string GetCategorySelection(ChuckNorrisController controller, ConsolePrinter printer)
+        private static async Task<string> GetCategorySelection(ChuckNorrisController controller, ConsolePrinter printer)
         {
             bool validCategory = false;
             string rc = "";
             while (!validCategory)
-            {
-                printer.PrintResults(controller.GetCategories());
+            {      
+                var categories = await controller.GetCategories().ConfigureAwait(false);
+                printer.PrintResults(categories);
                 printer.Value("Enter a category:").Print();
                 string categoryInput = Console.ReadLine();
                 if (controller.CachedCategories.Contains(categoryInput))
@@ -152,7 +156,6 @@ namespace ConsoleApp1
                     key = 'x';
                     break;    
             }
-            //Igor - easier to read with new line after this
             Console.WriteLine();
             return key;
         }
