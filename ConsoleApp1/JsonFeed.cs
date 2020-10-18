@@ -11,17 +11,18 @@ namespace ConsoleApp1
 {
     class JsonFeed
     {
-        static string _url = "";
+        //igor - removed static from all methods
+        private string _url = "";
 
         public JsonFeed() { }
-        //TODO - igor-result is used for what? - remove?
+        //igor-result is used for what? - remove?
 		public JsonFeed(string endpoint)
         {
             _url = endpoint;
         }
 
 
-		public static string[] GetRandomJokes(
+		public string[] GetRandomJokes(
             string firstName,
             string lastName,
             string category,
@@ -71,7 +72,7 @@ namespace ConsoleApp1
         /// 
         /// </summary>
         /// <returns></returns>
-        public static dynamic GetNames()
+        public dynamic GetNames()
         {
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(_url);
@@ -79,7 +80,7 @@ namespace ConsoleApp1
             return JsonConvert.DeserializeObject<dynamic>(result);
         }
 
-        public static string[] GetCategories()
+        public string[] GetCategories()
         {
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(_url);
