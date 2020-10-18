@@ -59,6 +59,7 @@ namespace ConsoleApp1
                     printer.Value("Asking Chuck for permission to publish jokes.").Print();
                     var jokes = await controller.GetRandomJokes(names, categorySelected, numOfJokes).ConfigureAwait(false);
                     printer.PrintResultsPerLine(jokes);
+                    printer.Value("").Print();
                 }
                 if (mainSelectionKey == 'x')
                 {
@@ -105,6 +106,10 @@ namespace ConsoleApp1
                 {
                     validSelection = true;
                     num = numberOfJokes;
+                }
+                else
+                {
+                    printer.Value("Invalid input").Print();
                 }
             }
             return num;
