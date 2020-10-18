@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace ConsoleApp1
 {
@@ -18,11 +12,25 @@ namespace ConsoleApp1
             return this;
         }
 
-        //TODO call it print and not ToString() ?
+        //igor - call it Print and not ToString() - right?
 
         public void Print()
         {
             Console.WriteLine(printValue);
         }
+
+        public void PrintResults(string [] results)
+        {
+            Value("[" + string.Join(",", results) + "]").Print();
+        }
+        public void PrintResultsPerLine(string [] results)
+        {
+            int count = 1;
+            foreach (string r in results)
+            {
+                Value(count.ToString() + ". " + r).Print();
+                count++;
+            }
+        } 
     }
 }

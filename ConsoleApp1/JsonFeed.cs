@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
@@ -43,7 +40,6 @@ namespace ConsoleApp1
 
             for (int i = 0 ; i< numOfJokes; i++)
 			{
-				//TODO - make it more efficient async. C#8 has async streams
 				string jokeAsJsonStr = Task.FromResult(client.GetStringAsync(url).Result).Result;
 				string joke = JsonConvert.DeserializeObject<dynamic>(jokeAsJsonStr).value;
 				//it is better to replace string after we extract value
@@ -66,6 +62,7 @@ namespace ConsoleApp1
 			}
 			return rc;
         }
+
         //igor - fixed : CamelCase function name, comment was wrong
         //TODO- fix comment
         /// <summary>

@@ -1,12 +1,5 @@
-﻿using System.Linq.Expressions;
-using System.Data.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace ConsoleApp1
 {
@@ -20,12 +13,16 @@ namespace ConsoleApp1
         //remove names and make the GetNames return this type
         //static Tuple<string, string> names;
 
-        static List<string> cachedCategories = new List<string>();
+        //static List<string> cachedCategories = new List<string>();
         static List<int> validNumberOfJokes = new List<int>{1,2,3,4,5,6,7,8,9};
-        static ConsolePrinter printer = new ConsolePrinter();
+        //static ConsolePrinter printer = new ConsolePrinter();
 
         static void Main(string[] args)
         {
+            //List<int> validNumberOfJokes = new List<int>{1,2,3,4,5,6,7,8,9};
+            ConsolePrinter printer = new ConsolePrinter();
+            ChuckNorrisController controller = new ChuckNorrisController();
+
             var donePlaying = false;
             printer.Value("").Print();//new line
             printer.Value("Lets get some Chuck Norris jokes!").Print();
@@ -56,7 +53,7 @@ namespace ConsoleApp1
                     printer.Value("Want to use a random name? y/n").Print();
                     char nameSelectionKey = GetEnteredKey(Console.ReadKey());
                     if (nameSelectionKey == 'y')
-                        names = GetNames();
+                        names = controller.GetNames();
 
                     printer.Value("Want to specify a category? y/n").Print();
                     //Igor - missed to get the category
@@ -64,19 +61,20 @@ namespace ConsoleApp1
                     if (categorySelectionKey == 'y')
                     {
                         //IGOR - USER EXPERIENCE - present categories and check input
-                        categorySelected = GetCategorySelection();
+                        categorySelected = GetCategorySelection(controller, printer);
                     }
                     //TODO - validate if user input is correct (number and in valid range) 
                     //printer.Value("How many jokes do you want? (1-9)").ToString();
                     //TODO use tryParse in the case string that can't be converted is used
                     //numOfJokes = Int32.Parse(Console.ReadLine());
-                    numOfJokes = GetNumberOfJokes();
+                    numOfJokes = GetNumberOfJokes(printer);
 
                 }
                 if (mainSelectionKey == '1' || mainSelectionKey == '2')
                 {
-                    var jokes = GetRandomJokes(names, categorySelected, numOfJokes);
-                    PrintResultsPerLine(jokes);
+                    printer.Value("Getting jokes...").Print();
+                    var jokes = controller.GetRandomJokes(names, categorySelected, numOfJokes);
+                    printer.PrintResultsPerLine(jokes);
                 }
                 if (mainSelectionKey == 'x')
                 {
@@ -86,31 +84,31 @@ namespace ConsoleApp1
             }
         }
 
-        private static void PrintResults(string [] results)
-        {
-            printer.Value("[" + string.Join(",", results) + "]").Print();
-        }
-        private static void PrintResultsPerLine(string [] results)
-        {
-            int count = 1;
-            foreach (string r in results)
-            {
-                printer.Value(count.ToString() + ". " + r).Print();
-                count++;
-            }
-        } 
+        // private static void PrintResults(string [] results)
+        // {
+        //     printer.Value("[" + string.Join(",", results) + "]").Print();
+        // }
+        // private static void PrintResultsPerLine(string [] results)
+        // {
+        //     int count = 1;
+        //     foreach (string r in results)
+        //     {
+        //         printer.Value(count.ToString() + ". " + r).Print();
+        //         count++;
+        //     }
+        // } 
 
-        private static string GetCategorySelection()
+        private static string GetCategorySelection(ChuckNorrisController controller, ConsolePrinter printer)
         {
             bool validCategory = false;
             string rc = "";
             while (!validCategory)
             {
-                PrintResults(GetCategories());
+                printer.PrintResults(controller.GetCategories());
                 //TODO - IGOR - validate correct input and keep prompting until valid
                 printer.Value("Enter a category:").Print();
                 string categoryInput = Console.ReadLine();
-                if (cachedCategories.Contains(categoryInput))
+                if (controller.CachedCategories().Contains(categoryInput))
                 {
                     validCategory = true;
                     rc = categoryInput;
@@ -124,7 +122,7 @@ namespace ConsoleApp1
 
         }     
 
-        private static int GetNumberOfJokes()
+        private static int GetNumberOfJokes(ConsolePrinter printer)
         {
             bool validSelection = false;
             int num = 1;
@@ -202,35 +200,35 @@ namespace ConsoleApp1
             return key;
         }
 
-        private static string [] GetRandomJokes(Tuple<string, string> names, string category, int number)
-        {
-            var jsonFeed = new JsonFeed("https://api.chucknorris.io");
-            var results = jsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category, number);
-            return results;
-        }
+        // private static string [] GetRandomJokes(Tuple<string, string> names, string category, int number)
+        // {
+        //     var jsonFeed = new JsonFeed("https://api.chucknorris.io");
+        //     var results = jsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category, number);
+        //     return results;
+        // }
 
-        private static string[] GetCategories()
-        {
-            string [] rc = new string[50];
-            if (!cachedCategories.Any())
-            {
-                var jsonFeed = new JsonFeed("https://api.chucknorris.io");
-                rc = jsonFeed.GetCategories();
-                cachedCategories.AddRange(rc);
-            }
-            else
-            {
-                rc = cachedCategories.ToArray();
-            }
-            return rc;
-        }
+        // private static string[] GetCategories()
+        // {
+        //     string [] rc = new string[50];
+        //     if (!cachedCategories.Any())
+        //     {
+        //         var jsonFeed = new JsonFeed("https://api.chucknorris.io");
+        //         rc = jsonFeed.GetCategories();
+        //         cachedCategories.AddRange(rc);
+        //     }
+        //     else
+        //     {
+        //         rc = cachedCategories.ToArray();
+        //     }
+        //     return rc;
+        // }
 
-        //igor - make it with param that indicates random vs input names
-        private static Tuple<string, string> GetNames()
-        {
-            var jsonFeed = new JsonFeed("https://www.names.privserv.com/api/");
-            dynamic result = jsonFeed.GetNames();
-            return Tuple.Create(result.name.ToString(), result.surname.ToString());
-        }
+        // //igor - make it with param that indicates random vs input names
+        // private static Tuple<string, string> GetNames()
+        // {
+        //     var jsonFeed = new JsonFeed("https://www.names.privserv.com/api/");
+        //     dynamic result = jsonFeed.GetNames();
+        //     return Tuple.Create(result.name.ToString(), result.surname.ToString());
+        // }
     }
 }
