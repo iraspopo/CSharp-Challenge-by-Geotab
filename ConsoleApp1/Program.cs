@@ -72,7 +72,7 @@ namespace ConsoleApp1
                 }
                 if (mainSelectionKey == '1' || mainSelectionKey == '2')
                 {
-                    printer.Value("Getting jokes...").Print();
+                    printer.Value("Getting joke/s...").Print();
                     var jokes = controller.GetRandomJokes(names, categorySelected, numOfJokes);
                     printer.PrintResultsPerLine(jokes);
                 }
@@ -108,7 +108,7 @@ namespace ConsoleApp1
                 //TODO - IGOR - validate correct input and keep prompting until valid
                 printer.Value("Enter a category:").Print();
                 string categoryInput = Console.ReadLine();
-                if (controller.CachedCategories().Contains(categoryInput))
+                if (controller.CachedCategories.Contains(categoryInput))
                 {
                     validCategory = true;
                     rc = categoryInput;

@@ -9,9 +9,10 @@ namespace ConsoleApp1
         private List<string> cachedCategories = new List<string>();
         public ChuckNorrisController() { }
 
-        public List<string> CachedCategories ()
+        public List<string> CachedCategories 
         {
-            return cachedCategories;
+            get{return cachedCategories;}
+            set{cachedCategories = value;}
         }
 
 		public string [] GetRandomJokes(Tuple<string, string> names, string category, int number)
@@ -24,15 +25,15 @@ namespace ConsoleApp1
         public string[] GetCategories()
         {
             string [] rc = new string[50];
-            if (!CachedCategories().Any())
+            if (!CachedCategories.Any())
             {
                 var jsonFeed = new JsonFeed("https://api.chucknorris.io");
                 rc = jsonFeed.GetCategories();
-                CachedCategories().AddRange(rc);
+                CachedCategories.AddRange(rc);
             }
             else
             {
-                rc = CachedCategories().ToArray();
+                rc = CachedCategories.ToArray();
             }
             return rc;
         }

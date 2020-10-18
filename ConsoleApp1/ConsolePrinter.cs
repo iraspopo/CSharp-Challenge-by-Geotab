@@ -6,9 +6,13 @@ namespace ConsoleApp1
     {
         private object printValue;
 
+        public ConsolePrinter()
+        {
+        }
+
         public ConsolePrinter Value(string value)
         {
-            printValue = value;
+            this.printValue = value;
             return this;
         }
 
