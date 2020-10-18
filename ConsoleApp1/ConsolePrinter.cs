@@ -16,8 +16,6 @@ namespace ConsoleApp1
             return this;
         }
 
-        //igor - call it Print and not ToString() - right?
-
         public void Print()
         {
             Console.WriteLine(printValue);
