@@ -8,7 +8,6 @@ namespace ConsoleApp1
     {
         static List<int> validNumberOfJokes = new List<int>{1,2,3,4,5,6,7,8,9};
         
-        //igor - sine I believe C#7 Console application can also be async ()
         static async Task Main(string[] args)
         {
             ConsolePrinter printer = new ConsolePrinter();
